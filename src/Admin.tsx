@@ -622,7 +622,7 @@ export default function Admin() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {brand.logo_url ? (
-              <img src={brand.logo_url} alt={brand.nome} className="h-8 w-auto object-contain" />
+              <img src={brand.logo_url} alt={brand.nome} className="h-10 w-auto object-contain" />
             ) : (
               <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-background">
                 <User size={20} />
@@ -665,7 +665,7 @@ export default function Admin() {
       <aside className="w-72 bg-card border-r border-white/5 flex flex-col p-6 fixed inset-y-0 hidden md:flex">
         <div className="flex items-center gap-3 mb-12">
           {brand.logo_url ? (
-            <img src={brand.logo_url} alt={brand.nome} className="h-12 w-auto object-contain" />
+            <img src={brand.logo_url} alt={brand.nome} className="h-16 w-auto object-contain" />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center text-background">
               <User size={24} />
