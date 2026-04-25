@@ -401,11 +401,17 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pricingAnnual, setPricingAnnual] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(window.location.pathname === '/admin');
+  const [isAdmin, setIsAdmin] = useState(
+    window.location.pathname.toLowerCase() === '/admin' || 
+    window.location.pathname.toLowerCase() === '/admin/'
+  );
 
   useEffect(() => {
     const handlePopState = () => {
-      setIsAdmin(window.location.pathname === '/admin');
+      setIsAdmin(
+        window.location.pathname.toLowerCase() === '/admin' || 
+        window.location.pathname.toLowerCase() === '/admin/'
+      );
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
