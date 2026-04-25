@@ -47,60 +47,64 @@ export function PersonalizacaoTab() {
 
   // ── Upload da logo ─────────────────────────────────────────
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
-    const ALLOWED  = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
-
-    if (!ALLOWED.includes(file.type)) {
-      toast.error("Formato inválido. Use PNG, JPG, SVG ou WebP.");
-      return;
-    }
-    if (file.size > MAX_SIZE) {
-      toast.error("Arquivo muito grande. Máximo 2MB.");
-      return;
-    }
-
-    const localUrl = URL.createObjectURL(file);
-    setPreview(localUrl);
-    setUploading(true);
-
     try {
-      const ext      = file.name.split(".").pop();
-      const fileName = `logo_${Date.now()}.${ext}`;
+      const file = e.target.files?.[0];
+      if (!file) {
+        console.log("[LogoUpload] Nenhum arquivo selecionado");
+        return;
+      }
 
-      console.log("[LogoUpload] Iniciando upload para o bucket 'brand'...", fileName);
+      console.log("[LogoUpload] Arquivo selecionado:", file.name, file.type, file.size);
 
-      // 1. Upload do arquivo
+      // Validações básicas
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Arquivo muito grande (máximo 2MB)");
+        return;
+      }
+
+      // 1. Mostrar preview instantâneo
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+      setUploading(true);
+
+      // 2. Preparar upload
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      console.log("[LogoUpload] Tentando upload para path:", filePath);
+
+      // 3. Executar Upload
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("brand")
-        .upload(fileName, file, { 
-          upsert: true,
-          contentType: file.type 
+        .from('brand')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
         });
 
       if (uploadError) {
-        console.error("[LogoUpload] Erro no Upload:", uploadError);
-        alert(`Erro de Upload: ${uploadError.message}\nVerifique se a pasta 'brand' está correta.`);
-        throw new Error(`Erro no Storage: ${uploadError.message}`);
+        console.error("[LogoUpload] Erro detalhado do Supabase:", uploadError);
+        alert(`Erro no Upload: ${uploadError.message}`);
+        setPreview(null);
+        return;
       }
 
-      console.log("[LogoUpload] Upload concluído:", uploadData);
+      console.log("[LogoUpload] Sucesso no upload:", uploadData);
 
-      // 2. Pegar URL pública
-      const { data } = supabase.storage
-        .from("brand")
-        .getPublicUrl(fileName);
-      
-      const publicUrl = data.publicUrl;
+      // 4. Pegar URL Pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('brand')
+        .getPublicUrl(filePath);
 
-      // 3. Atualiza estado local
+      console.log("[LogoUpload] URL Pública gerada:", publicUrl);
+
+      // 5. Atualizar estado local
       setLocalBrand(prev => ({ ...prev, logo_url: publicUrl }));
-      toast.success("Imagem enviada! Clique em salvar para aplicar.");
+      toast.success("Logo carregada! Não esqueça de clicar em 'Salvar Configurações' abaixo.");
+
     } catch (err: any) {
-      console.error("[LogoUpload] Falha crítica:", err);
-      toast.error(`Falha: ${err.message || "Verifique se a pasta 'brand' existe no Storage"}`);
+      console.error("[LogoUpload] Erro inesperado:", err);
+      alert(`Erro inesperado: ${err.message}`);
       setPreview(null);
     } finally {
       setUploading(false);
