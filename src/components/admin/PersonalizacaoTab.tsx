@@ -34,17 +34,22 @@ const Label = ({ children, className }: any) => (
 
 export function PersonalizacaoTab() {
   const { brand, setBrand, reload } = useBrand();
+  const [localBrand, setLocalBrand] = useState(brand);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sincroniza o estado local se o global mudar (ex: após recarregar)
+  useEffect(() => {
+    setLocalBrand(brand);
+  }, [brand]);
 
   // ── Upload da logo ─────────────────────────────────────────
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validações
     const MAX_SIZE = 2 * 1024 * 1024; // 2MB
     const ALLOWED  = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
 
@@ -57,7 +62,6 @@ export function PersonalizacaoTab() {
       return;
     }
 
-    // Preview local imediato
     const localUrl = URL.createObjectURL(file);
     setPreview(localUrl);
     setUploading(true);
@@ -66,37 +70,22 @@ export function PersonalizacaoTab() {
       const ext      = file.name.split(".").pop();
       const fileName = `logo_${Date.now()}.${ext}`;
 
-      // 1. Upload do arquivo
       const { error: uploadError } = await supabase.storage
         .from("brand")
-        .upload(fileName, file, { upsert: true, cacheControl: "3600" });
+        .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // 2. Pegar URL pública
       const { data: { publicUrl } } = supabase.storage
         .from("brand")
         .getPublicUrl(fileName);
 
-      // 3. Atualizar o estado local IMEDIATAMENTE
-      const updatedBrand = { ...brand, logo_url: publicUrl };
-      setBrand(updatedBrand);
-
-      // 4. Salvar no banco de dados IMEDIATAMENTE para garantir permanência
-      const { error: saveError } = await supabase
-        .from("settings")
-        .upsert({ 
-          key: "brand", 
-          value: updatedBrand, 
-          updated_at: new Date().toISOString() 
-        }, { onConflict: 'key' });
-
-      if (saveError) throw saveError;
-
-      toast.success("Logo enviada e salva com sucesso!");
+      // Atualiza estado local
+      setLocalBrand(prev => ({ ...prev, logo_url: publicUrl }));
+      toast.success("Imagem enviada! Clique em salvar para aplicar.");
     } catch (err: any) {
       console.error("[LogoUpload] Erro:", err);
-      toast.error(`Erro ao processar logo: ${err.message || "Tente novamente"}`);
+      toast.error("Erro ao enviar logo.");
       setPreview(null);
     } finally {
       setUploading(false);
@@ -107,40 +96,28 @@ export function PersonalizacaoTab() {
   async function handleSave() {
     setSaving(true);
     try {
-      // Limpa o objeto para garantir que enviamos apenas dados puros
-      const brandData = {
-        nome: brand.nome,
-        slogan: brand.slogan,
-        logo_url: brand.logo_url,
-        primary_color: brand.primary_color,
-        secondary_color: brand.secondary_color,
-        accent_color: brand.accent_color
-      };
-
       const { error } = await supabase
         .from("settings")
         .upsert({ 
           key: "brand", 
-          value: brandData, 
-          updated_at: new Date().toISOString() 
-        }, { onConflict: 'key' });
+          value: localBrand
+        });
 
-      if (error) {
-        console.error("[Personalizacao] Erro no Supabase:", error);
-        throw error;
-      }
+      if (error) throw error;
 
-      await reload(); // Aguarda o recarregamento
-      toast.success("Personalizações salvas! A landing page foi atualizada.");
+      setBrand(localBrand); // Atualiza global
+      await reload();
+      setPreview(null);
+      toast.success("Configurações salvas com sucesso!");
     } catch (err: any) {
-      console.error("[Personalizacao] Falha ao salvar:", err);
-      toast.error(`Erro ao salvar: ${err.message || "Tente novamente"}`);
+      console.error("[Personalizacao] Erro:", err);
+      toast.error("Erro ao salvar no banco de dados.");
     } finally {
       setSaving(false);
     }
   }
 
-  const logoAtual = preview || brand.logo_url;
+  const logoAtual = preview || localBrand.logo_url;
 
   return (
     <div className="space-y-8 max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -216,9 +193,9 @@ export function PersonalizacaoTab() {
           <div className="space-y-2">
             <Label>Nome da empresa / produto</Label>
             <Input
-              value={brand.nome}
+              value={localBrand.nome}
               onChange={(e: any) =>
-                setBrand((b) => ({ ...b, nome: e.target.value }))
+                setLocalBrand((b) => ({ ...b, nome: e.target.value }))
               }
               placeholder="Ex: OmniVendas"
               maxLength={40}
@@ -228,9 +205,9 @@ export function PersonalizacaoTab() {
           <div className="space-y-2">
             <Label>Slogan</Label>
             <Input
-              value={brand.slogan}
+              value={localBrand.slogan}
               onChange={(e: any) =>
-                setBrand((b) => ({ ...b, slogan: e.target.value }))
+                setLocalBrand((b) => ({ ...b, slogan: e.target.value }))
               }
               placeholder="Ex: Transforme seu WhatsApp em máquina de vendas"
               maxLength={80}
@@ -270,17 +247,17 @@ export function PersonalizacaoTab() {
                 <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 shadow-inner">
                   <input
                     type="color"
-                    value={brand[key as keyof typeof brand] as string}
+                    value={localBrand[key as keyof typeof localBrand] as string}
                     onChange={(e) =>
-                      setBrand((b) => ({ ...b, [key]: e.target.value }))
+                      setLocalBrand((b) => ({ ...b, [key]: e.target.value }))
                     }
                     className="absolute inset-[-50%] w-[200%] h-[200%] cursor-pointer border-0 p-0"
                   />
                 </div>
                 <Input
-                  value={brand[key as keyof typeof brand] as string}
+                  value={localBrand[key as keyof typeof localBrand] as string}
                   onChange={(e: any) =>
-                    setBrand((b) => ({ ...b, [key]: e.target.value }))
+                    setLocalBrand((b) => ({ ...b, [key]: e.target.value }))
                   }
                   className="font-mono text-xs uppercase h-12"
                   maxLength={7}
@@ -294,7 +271,7 @@ export function PersonalizacaoTab() {
         {/* Preview das cores */}
         <div
           className="rounded-xl p-6 mt-4 flex items-center justify-between border border-white/5 relative overflow-hidden"
-          style={{ background: brand.accent_color + "11" }}
+          style={{ background: localBrand.accent_color + "11" }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
           <div className="flex items-center gap-3 relative z-10">
@@ -303,13 +280,13 @@ export function PersonalizacaoTab() {
             ) : (
               <div className="w-8 h-8 rounded bg-brand-primary/20" />
             )}
-            <span className="font-black text-xl tracking-tighter" style={{ color: brand.primary_color }}>
-              {brand.nome}
+            <span className="font-black text-xl tracking-tighter" style={{ color: localBrand.primary_color }}>
+              {localBrand.nome}
             </span>
           </div>
           <button
             className="px-6 py-2 rounded-lg text-white text-sm font-bold shadow-lg relative z-10"
-            style={{ background: brand.primary_color }}
+            style={{ background: localBrand.primary_color }}
           >
             Começar agora
           </button>
