@@ -64,25 +64,39 @@ export function PersonalizacaoTab() {
 
     try {
       const ext      = file.name.split(".").pop();
-      const fileName = `logo_${Date.now()}.${ext}`; // Use timestamp to avoid cache issues
+      const fileName = `logo_${Date.now()}.${ext}`;
 
-      // Upload novo arquivo
-      const { error } = await supabase.storage
+      // 1. Upload do arquivo
+      const { error: uploadError } = await supabase.storage
         .from("brand")
         .upload(fileName, file, { upsert: true, cacheControl: "3600" });
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
 
-      // Pegar URL pública
+      // 2. Pegar URL pública
       const { data: { publicUrl } } = supabase.storage
         .from("brand")
         .getPublicUrl(fileName);
 
-      setBrand((b) => ({ ...b, logo_url: publicUrl }));
-      toast.success("Logo enviada com sucesso!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao enviar logo. Tente novamente.");
+      // 3. Atualizar o estado local IMEDIATAMENTE
+      const updatedBrand = { ...brand, logo_url: publicUrl };
+      setBrand(updatedBrand);
+
+      // 4. Salvar no banco de dados IMEDIATAMENTE para garantir permanência
+      const { error: saveError } = await supabase
+        .from("settings")
+        .upsert({ 
+          key: "brand", 
+          value: updatedBrand, 
+          updated_at: new Date().toISOString() 
+        }, { onConflict: 'key' });
+
+      if (saveError) throw saveError;
+
+      toast.success("Logo enviada e salva com sucesso!");
+    } catch (err: any) {
+      console.error("[LogoUpload] Erro:", err);
+      toast.error(`Erro ao processar logo: ${err.message || "Tente novamente"}`);
       setPreview(null);
     } finally {
       setUploading(false);
@@ -93,15 +107,34 @@ export function PersonalizacaoTab() {
   async function handleSave() {
     setSaving(true);
     try {
+      // Limpa o objeto para garantir que enviamos apenas dados puros
+      const brandData = {
+        nome: brand.nome,
+        slogan: brand.slogan,
+        logo_url: brand.logo_url,
+        primary_color: brand.primary_color,
+        secondary_color: brand.secondary_color,
+        accent_color: brand.accent_color
+      };
+
       const { error } = await supabase
         .from("settings")
-        .upsert({ key: "brand", value: brand, updated_at: new Date() });
+        .upsert({ 
+          key: "brand", 
+          value: brandData, 
+          updated_at: new Date().toISOString() 
+        }, { onConflict: 'key' });
 
-      if (error) throw error;
-      reload();
+      if (error) {
+        console.error("[Personalizacao] Erro no Supabase:", error);
+        throw error;
+      }
+
+      await reload(); // Aguarda o recarregamento
       toast.success("Personalizações salvas! A landing page foi atualizada.");
-    } catch {
-      toast.error("Erro ao salvar. Tente novamente.");
+    } catch (err: any) {
+      console.error("[Personalizacao] Falha ao salvar:", err);
+      toast.error(`Erro ao salvar: ${err.message || "Tente novamente"}`);
     } finally {
       setSaving(false);
     }
