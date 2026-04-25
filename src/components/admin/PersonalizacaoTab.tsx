@@ -70,22 +70,37 @@ export function PersonalizacaoTab() {
       const ext      = file.name.split(".").pop();
       const fileName = `logo_${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log("[LogoUpload] Iniciando upload para o bucket 'brand'...", fileName);
+
+      // 1. Upload do arquivo
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from("brand")
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, file, { 
+          upsert: true,
+          contentType: file.type 
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("[LogoUpload] Erro no Upload:", uploadError);
+        alert(`Erro de Upload: ${uploadError.message}\nVerifique se a pasta 'brand' está correta.`);
+        throw new Error(`Erro no Storage: ${uploadError.message}`);
+      }
 
-      const { data: { publicUrl } } = supabase.storage
+      console.log("[LogoUpload] Upload concluído:", uploadData);
+
+      // 2. Pegar URL pública
+      const { data } = supabase.storage
         .from("brand")
         .getPublicUrl(fileName);
+      
+      const publicUrl = data.publicUrl;
 
-      // Atualiza estado local
+      // 3. Atualiza estado local
       setLocalBrand(prev => ({ ...prev, logo_url: publicUrl }));
       toast.success("Imagem enviada! Clique em salvar para aplicar.");
     } catch (err: any) {
-      console.error("[LogoUpload] Erro:", err);
-      toast.error("Erro ao enviar logo.");
+      console.error("[LogoUpload] Falha crítica:", err);
+      toast.error(`Falha: ${err.message || "Verifique se a pasta 'brand' existe no Storage"}`);
       setPreview(null);
     } finally {
       setUploading(false);
@@ -95,6 +110,7 @@ export function PersonalizacaoTab() {
   // ── Salvar todas as configurações ──────────────────────────
   async function handleSave() {
     setSaving(true);
+    console.log("[Personalizacao] Tentando salvar configurações...", localBrand);
     try {
       const { error } = await supabase
         .from("settings")
@@ -103,15 +119,19 @@ export function PersonalizacaoTab() {
           value: localBrand
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Personalizacao] Erro de Banco de Dados:", error);
+        alert(`Erro no Banco de Dados: ${error.message}\nCódigo: ${error.code}`);
+        throw error;
+      }
 
-      setBrand(localBrand); // Atualiza global
+      setBrand(localBrand);
       await reload();
       setPreview(null);
       toast.success("Configurações salvas com sucesso!");
     } catch (err: any) {
-      console.error("[Personalizacao] Erro:", err);
-      toast.error("Erro ao salvar no banco de dados.");
+      console.error("[Personalizacao] Erro Crítico:", err);
+      // toast.error já é mostrado pelo throw, mas vamos garantir
     } finally {
       setSaving(false);
     }
