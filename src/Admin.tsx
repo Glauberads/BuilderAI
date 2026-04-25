@@ -14,7 +14,6 @@ import {
   Save,
   Globe,
   Code,
-  Activity,
   Link,
   User,
   RefreshCw,
@@ -267,7 +266,7 @@ const MarketingModule = () => {
   }, []);
 
   const fetchSettings = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('settings')
       .select('value')
       .eq('key', 'marketing')
@@ -411,7 +410,7 @@ const IntegrationsModule = () => {
   }, []);
 
   const fetchSettings = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('settings')
       .select('value')
       .eq('key', 'integrations')
