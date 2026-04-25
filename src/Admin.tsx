@@ -616,8 +616,52 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-background text-text flex flex-col md:flex-row">
+      {/* Mobile Header with Tab Selector */}
+      <div className="md:hidden sticky top-0 z-40 bg-card border-b border-white/5 p-4 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {brand.logo_url ? (
+              <img src={brand.logo_url} alt={brand.nome} className="h-8 w-auto object-contain" />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-background">
+                <User size={20} />
+              </div>
+            )}
+            <span className="text-lg font-black">{brand.nome}</span>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+          >
+            <LogOut size={20} />
+          </button>
+        </div>
+        
+        {/* Mobile Tab Icons */}
+        <div className="flex justify-between items-center bg-white/5 p-1 rounded-xl">
+          {[
+            { id: 'leads', icon: Users, label: 'Leads' },
+            { id: 'personalizacao', icon: Layout, label: 'Marca' },
+            { id: 'marketing', icon: BarChart3, label: 'Mkt' },
+            { id: 'integrations', icon: LinkIcon, label: 'Links' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "flex-1 flex flex-col items-center py-2 rounded-lg transition-all",
+                activeTab === tab.id ? "bg-brand-primary text-background" : "text-text/40"
+              )}
+            >
+              <tab.icon size={18} />
+              <span className="text-[10px] font-bold mt-1 uppercase tracking-tighter">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Sidebar (Desktop Only) */}
       <aside className="w-72 bg-card border-r border-white/5 flex flex-col p-6 fixed inset-y-0 hidden md:flex">
         <div className="flex items-center gap-3 mb-12">
           {brand.logo_url ? (
@@ -665,7 +709,7 @@ export default function Admin() {
               activeTab === 'integrations' ? "bg-brand-primary text-background" : "text-text/60 hover:bg-white/5 hover:text-text"
             )}
           >
-            <Link size={20} /> Integrações
+            <LinkIcon size={20} /> Integrações
           </button>
         </nav>
 

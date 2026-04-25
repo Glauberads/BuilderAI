@@ -497,11 +497,23 @@ export default function App() {
               className="md:hidden glass mt-4 rounded-2xl overflow-hidden"
             >
               <div className="flex flex-col p-6 gap-4">
-                <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium">Funcionalidades</a>
-                <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium">Como funciona</a>
-                <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium">Preços</a>
-                <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium">Depoimentos</a>
-                <button onClick={openModal} className="w-full btn-primary mt-4">Começar grátis</button>
+                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5">
+                  {brand.logo_url ? (
+                    <img src={brand.logo_url} alt={brand.nome} className="h-10 w-auto object-contain" />
+                  ) : (
+                    <span className="text-xl font-bold text-brand-primary">{brand.nome}</span>
+                  )}
+                </div>
+                <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium hover:text-brand-primary transition-colors">Funcionalidades</a>
+                <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium hover:text-brand-primary transition-colors">Como funciona</a>
+                <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium hover:text-brand-primary transition-colors">Preços</a>
+                <a href="#testimonials" onClick={() => setIsMobileMenuOpen(false)} className="text-xl font-medium hover:text-brand-primary transition-colors">Depoimentos</a>
+                <button 
+                  onClick={() => { setIsMobileMenuOpen(false); openModal(); }} 
+                  className="w-full btn-primary mt-4"
+                >
+                  Começar grátis
+                </button>
               </div>
             </motion.div>
           )}
@@ -878,7 +890,7 @@ export default function App() {
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.1 }}
         onClick={openModal}
-        className="fixed bottom-8 right-8 z-[90] bg-brand-primary text-background p-4 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.4)] flex items-center gap-2 font-bold group"
+        className="fixed bottom-8 right-8 z-[90] bg-brand-primary text-background p-4 rounded-full shadow-lg shadow-brand-primary/40 flex items-center gap-2 font-bold group"
       >
         <span className="max-w-0 overflow-hidden group-hover:max-w-[150px] transition-all duration-500 whitespace-nowrap">
           Falar no WhatsApp
