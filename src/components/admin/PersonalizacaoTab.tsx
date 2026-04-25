@@ -300,7 +300,7 @@ export function PersonalizacaoTab() {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
           <div className="flex items-center gap-3 relative z-10">
             {logoAtual ? (
-              <img src={logoAtual} alt="logo" className="w-8 h-8 object-contain" />
+              <img src={logoAtual} alt="logo" className="w-12 h-12 object-contain" />
             ) : (
               <div className="w-8 h-8 rounded bg-brand-primary/20" />
             )}

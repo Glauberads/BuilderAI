@@ -448,7 +448,7 @@ export default function App() {
               <img 
                 src={brand.logo_url} 
                 alt={brand.nome} 
-                className="h-10 object-contain"
+                className="h-16 w-auto object-contain"
                 onError={(e) => {
                   const target = e.currentTarget;
                   target.style.display = "none";
@@ -891,7 +891,7 @@ export default function App() {
           <div className="col-span-2 md:col-span-1 space-y-6">
             <div className="flex items-center gap-2">
               {brand.logo_url ? (
-                <img src={brand.logo_url} alt={brand.nome} className="h-6 object-contain" />
+                <img src={brand.logo_url} alt={brand.nome} className="h-12 w-auto object-contain" />
               ) : (
                 <span className="text-xl font-bold text-brand-primary">{brand.nome}</span>
               )}
