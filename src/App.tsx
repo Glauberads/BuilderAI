@@ -274,7 +274,7 @@ const LeadCaptureModal = () => {
       
       // WhatsApp redirect
       const message = encodeURIComponent(`Olá, me chamo ${data.nome} e gostaria de saber mais!`);
-      const phone = "5511999999999"; // Exemplo, deveria ser o número do cliente
+      const phone = "5522992157330"; 
       window.location.href = `https://wa.me/${phone}?text=${message}`;
 
       closeModal();
