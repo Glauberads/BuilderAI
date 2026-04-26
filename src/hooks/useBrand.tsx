@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, useContext } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { supabase } from "../supabase";
 
 export interface BrandConfig {
