@@ -1,73 +1,36 @@
-# React + TypeScript + Vite
+# Builderfy AI - Painel de Revenda White Label
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma completa de IA para WhatsApp, agora disponível no modelo **White Label** para empreendedores que desejam construir uma receita recorrente.
 
-Currently, two official plugins are available:
+## 🚀 Oportunidade de Negócio
+O **Builderfy AI** não é apenas uma ferramenta, é a sua própria operação SaaS. Com o nosso Painel de Revenda, você pode:
+- **Personalizar com sua marca:** Nome, logo e cores totalmente customizáveis.
+- **Vender assinaturas mensais:** Você define os seus próprios preços e margens.
+- **Lucro 100% seu:** Sem taxas por venda ou comissões.
+- **Gestão simplificada:** Controle todos os seus clientes em um único dashboard administrativo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 💰 Oferta de Lançamento
+**Investimento:** R$ 150/ano (Menos de R$ 0,50 por dia).
+Este valor garante o acesso total ao Painel de Revenda com clientes ilimitados e suporte prioritário.
 
-## React Compiler
+## 🛠️ Tecnologias Utilizadas
+- **Frontend:** React + TypeScript + Vite
+- **Estilização:** Tailwind CSS + Framer Motion (Animações Premium)
+- **Backend/DB:** Supabase (Autenticação e Persistência)
+- **Ícones:** Lucide React
+- **Deploy:** Vercel
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ⚙️ Como Começar
+1. **Clone o repositório:** `git clone https://github.com/Glauberads/BuilderAI.git`
+2. **Instale as dependências:** `npm install`
+3. **Configure o Supabase:** Adicione suas chaves no arquivo `.env` (baseado no `src/supabase.ts`)
+4. **Rode localmente:** `npm run dev`
+5. **Build para produção:** `npm run build`
 
-## Expanding the ESLint configuration
+## 📈 Simulação de Lucro
+- 10 clientes a R$ 97/mês = R$ 970/mês
+- 30 clientes a R$ 97/mês = R$ 2.910/mês
+- 100 clientes a R$ 97/mês = R$ 9.700/mês
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+Desenvolvido para democratizar o acesso ao mercado de tecnologia e IA.
