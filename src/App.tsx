@@ -258,7 +258,7 @@ const LeadCaptureModal = () => {
 
       toast.success("Reserva confirmada! Redirecionando...");
       
-      const message = encodeURIComponent(`Olá, tenho interesse no Painel de Revenda Builderfy AI! Me chamo ${data.nome}.`);
+      const message = encodeURIComponent(`Olá, vi a oportunidade do Builderfy AI e gostaria de garantir meu Painel de Revenda! Me chamo ${data.nome}.`);
       const phone = "5522992157330"; 
       window.location.href = `https://wa.me/${phone}?text=${message}`;
 
