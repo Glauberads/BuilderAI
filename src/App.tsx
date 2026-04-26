@@ -1,3 +1,4 @@
+// Deploy trigger: fix missing imports and verify build
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { 
